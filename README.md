@@ -1,7 +1,7 @@
-# app
-app
+# CHAT_APP
+
 ----------------------------------------------------
-Como o projetos esta dividido?
+### Como o projetos esta dividido?
 
 O projeto esta divido em 3 partes:
 - Ambiente docker
@@ -25,7 +25,7 @@ pra o Ambiente PHP
 ### SETUP DO PROJETO
 
 ----------------------------------------------------
-### Estrutura de arquivo principais do projeto corrente
+### Estrutura de arquivos principais do projeto corrente
 
 ``` sh
 # Host system
