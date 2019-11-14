@@ -1,0 +1,119 @@
+.comp_chat {
+	color:white;
+}
+.comp_chat .content_chat{
+	height: calc(100vh - 120px);
+	overflow: auto;
+	display: flex;
+	/* background-color:red; */
+	margin: 25px;
+	box-shadow: 0 7px 16px 0 #e1e5e8;
+	/* display: none; */
+}
+.comp_chat .header {
+	position: fixed;
+	height: 50px;
+	background-color: #C1272D;
+	width: calc(100% - 50px);
+	box-shadow: 0 0 16px #e1e5e8;
+	border-radius: 4px 4px 0px 0px;
+}
+.comp_chat h2 {
+	position: absolute;
+    left: 45%;
+    top: -25%;
+}
+
+.comp_chat .caixa-msg {
+	/* background-color: green; */
+	overflow: auto;
+	width: 100%;
+	height: calc(100vh - 290px);
+	margin-top: 50px;
+	box-sizing: border-box;
+	padding-right: 20px;
+	
+
+}
+  
+.comp_chat .form-msg {
+	height: 100px;
+	/* background-color: blue; */
+	position: fixed;
+	bottom: 0;
+	width: calc(100% - 80px);
+	margin-bottom: 100px;
+	padding: 15px;
+}
+
+.comp_chat #text {
+	height: 70px;
+	cursor: text;
+	width: 100%;
+	position: absolute;
+	bottom: 0;
+	margin-bottom: 15px;
+	border: 2px solid #cbced1;
+	border-radius: 2px;
+	padding: 15px;
+	color: #2f343d;
+}
+
+.comp_chat .floatbtn { 
+	position: fixed; 
+	bottom: 0px; 
+	right: 0px; 
+	width: 100px; 
+	height: 100px; 
+	padding: 25px; 
+}
+
+.comp_chat .chat-btn .glyphicon { 
+	font-size: 25px; 
+	color: white;
+}
+
+.comp_chat .chat-btn { 
+	border-radius: 4px; 
+	height: 50px; 
+	width: 50px; 
+	padding: 10px; 
+	box-shadow: 0 7px 16px 0 #e1e5e8; 
+	background-color: #C1272D;
+	position: relative;
+	border: 2px solid;
+	border-color:#C1272D;
+}
+.comp_chat .avatar_suport{
+	width: 30px;
+	margin-left: 10px;
+}
+
+.comp_chat .avatar{
+	width: 30px;
+	margin-right: 10px;
+}
+
+.comp_chat .msg_list {
+	list-style: none;
+	color: #2f343d;
+}
+
+.comp_chat .msg_container {
+	margin-bottom: 15px;
+	width: 100%;
+}
+.comp_chat .msg_suport {
+	float: right;	
+	text-align: right;
+}
+
+.comp_chat .separator{
+	width: 100%;
+	margin: 16px 0;
+}
+.comp_chat .separator_hr{
+	border-top: 2px solid;
+	border-color: #e1e5e8;
+}
+ 

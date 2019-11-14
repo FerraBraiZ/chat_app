@@ -1,0 +1,35 @@
+version: '3.4'
+
+services:
+  app:
+    build: 
+      context: ./
+      args:
+        - XDEBUG_REMOTE_ENABLE=1
+        - XDEBUG_REMOTE_AUTO_START=1
+        - XDEBUG_REMOTE_HOST=host.docker.internal
+    container_name: chat_app
+    ports:
+      - "80:80"
+      - "9001:9001"
+      - "9503:9503"
+    volumes:
+      - ./../:/app
+      - ./nginx.conf:/etc/nginx/sites-enabled/default:ro
+    depends_on:
+      - db
+    network_mode: host
+    
+      
+  db:
+    image: "mysql:5.7.16"
+    container_name: chat_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_USER}
+      MYSQL_ROOT_HOST: "127.0.0.1"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    network_mode: host

@@ -1,0 +1,28 @@
+### BUILD IMAGEM
+cd .docker
+docker-compose build
+
+### UP CONTAINER
+docker-compose up -d
+docker-compose up -d db
+docker-compose up -d app
+docker-compose up -d --build
+
+### LOGIN NO CONTEINER 
+docker exec -it chat_app bash
+docker exec -it chat_db bash
+
+### LOGS
+docker-compose logs -f
+
+### OTHER commands
+docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)
+docker images -a | grep -vE "ubuntu" | awk '{print $3}' | xargs docker rmi
+docker images -a | awk '{print $3}' | xargs docker rmi
+docker rmi $(docker images -q) --force
+
+##############################
+### cria database
+
+
+yes yes no yes | pecl install swoole 

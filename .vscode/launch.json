@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Listen for XDebug",
+        "type": "php",
+        "request": "launch",
+        "port": 9000,
+        "log": true,
+        "pathMappings": {
+            "/app/public/": "${workspaceFolder}/public/"
+        }
+      },
+      {
+        "name": "Launch",
+        "request": "launch",
+        "type": "php",
+        "program": "${file}",
+        "cwd": "${workspaceRoot}",
+        "externalConsole": false
+      }
+    ]
+  }
