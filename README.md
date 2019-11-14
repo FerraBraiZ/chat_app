@@ -24,8 +24,23 @@ pra o Ambiente PHP
 ----------------------------------------------------
 ### SETUP DO PROJETO
 ``` sh
+$ mkdir chat_app
+$ cd chat_app
+$ git clone https://github.com/patrickfacchin/chat_app.git .
+$ composer install
+$ cd .docker
+$ docker-compose build
+$ docker-compose up -d
+$ mysql -uroot -proot -h127.0.0.1 < mysql-dump/Dump.sql
 
 ```
+Após acessar http://localhost:9001/ e restartar o serviço 'php-server'
+
+----------------------------------------------------
+### AVALIAR FUNCIONALIDADE
+- Abrir ao mesmo tempo as urls http://localhost/ e http://localhost/atendente
+- Enviar mensagem pelo chat do cliente e do atendente
+
 ----------------------------------------------------
 ### DER
 

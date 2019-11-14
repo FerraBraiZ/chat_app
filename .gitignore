@@ -1,4 +1,4 @@
-docker/mysql/
+.docker/mysql/
 node_modules/
 vendor/
 package-lock.json

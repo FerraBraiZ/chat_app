@@ -8,7 +8,7 @@
 	/* background-color:red; */
 	margin: 25px;
 	box-shadow: 0 7px 16px 0 #e1e5e8;
-	/* display: none; */
+	display: none;
 }
 .comp_chat .header {
 	position: fixed;
