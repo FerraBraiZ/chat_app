@@ -23,7 +23,13 @@ pra o Ambiente PHP
 ```
 ----------------------------------------------------
 ### SETUP DO PROJETO
+``` sh
 
+```
+----------------------------------------------------
+### DER
+
+![tela03](./der/der.png)
 ----------------------------------------------------
 ### Estrutura de arquivos principais do projeto corrente
 
