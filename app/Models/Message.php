@@ -7,7 +7,7 @@ use App\Core\Model;
 class Message extends Model
 {
 
-    protected $fillable = ['id', 'message', 'session'];
+    protected $fillable = ['id', 'message', 'session', 'rooms_id'];
     
     /**
      * Message constructor.

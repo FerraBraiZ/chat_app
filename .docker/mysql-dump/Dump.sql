@@ -27,10 +27,13 @@ DROP TABLE IF EXISTS `messages`;
 CREATE TABLE `messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `session` varchar(36) NOT NULL,
+  `rooms_id` bigint(11) NOT NULL,
   `message` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_message_sessions_idx` (`session`),
-  CONSTRAINT `fk_message_sessions` FOREIGN KEY (`session`) REFERENCES `sessions` (`session`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `fk_messages_rooms1_idx` (`rooms_id`),
+  CONSTRAINT `fk_message_sessions` FOREIGN KEY (`session`) REFERENCES `sessions` (`session`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_messages_rooms1` FOREIGN KEY (`rooms_id`) REFERENCES `rooms` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -69,13 +72,13 @@ LOCK TABLES `rooms` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `rooms_sessions`
+-- Table structure for table `roomssessions`
 --
 
-DROP TABLE IF EXISTS `rooms_sessions`;
+DROP TABLE IF EXISTS `roomssessions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `rooms_sessions` (
+CREATE TABLE `roomssessions` (
   `session` varchar(36) NOT NULL,
   `rooms_id` bigint(11) NOT NULL,
   KEY `fk_table1_sessions1_idx` (`session`),
@@ -86,12 +89,12 @@ CREATE TABLE `rooms_sessions` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `rooms_sessions`
+-- Dumping data for table `roomssessions`
 --
 
-LOCK TABLES `rooms_sessions` WRITE;
-/*!40000 ALTER TABLE `rooms_sessions` DISABLE KEYS */;
-/*!40000 ALTER TABLE `rooms_sessions` ENABLE KEYS */;
+LOCK TABLES `roomssessions` WRITE;
+/*!40000 ALTER TABLE `roomssessions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `roomssessions` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -127,4 +130,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-11-14  6:01:06
+-- Dump completed on 2019-11-18  2:45:11

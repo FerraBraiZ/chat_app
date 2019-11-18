@@ -6,6 +6,7 @@ use App\Core\Db;
 use App\Models\Message;
 use App\Models\Session;
 use App\Models\Room;
+use App\Models\RoomsSession;
 use Swoole\Http\Request;
 use Phalcon\Security\Random;
 use Swoole\WebSocket\Frame;
@@ -78,55 +79,67 @@ class WebsocketServer
                 $session->session = $data->session;
             }
             
-            ###########################################################################
-            # SALVAR SESSAO
+            ###################################################################
+            // salva sessao
             $session->fd = $frame->fd;
             $session->type = $data->user;
             $session->save();
-            ###########################################################################
-            # VERIFICAR SE TEM ROMM
-            # SALVAR ROOM
-
-            $room = new Room();
-            $room->create_by = $data->session;
-
-            if (!count($room->find())) {
-                $room->save();
-            }
-            ###########################################################################
-
-            $start_fd = 0;
-            while (true) {
-                $conn_list = $server->connection_list($start_fd, 10);
-
-                
-                if ($conn_list === false or count($conn_list) === 0) {
-                    break;
-                }
-
-                $start_fd = end($conn_list);
-
-                foreach ($conn_list as $fd) {
-                    $return_msg = [];
-                    $return_msg['msg']      = $data->message;
-                    
-                    if ($frame->fd != $fd) {
-                        $server->push($fd, json_encode($return_msg));
-                    } else {
-                        $return_msg['session']  = $data->session;
-                        $server->push($fd, json_encode($return_msg));
-                    }
-                }
-            }
-            ###########################################################################
-            # SALVAR MSG's
+            ###################################################################
+            // verifica se tem room
+            // salva room
             if ($data->user == "guest") {
-                $msg = new Message();
-                $msg->session = $data->session;
-                $msg->message = $frame->data;
-                $msg->save();
+                $room = new Room();
+                $room->create_by = $data->session;
+
+                if (!count($room->find())) {
+                    $room->save();
+                }
             }
-            ###########################################################################
+            ###################################################################
+            // retorna msg para a session corrente
+            $return_msg = [];
+            $return_msg['msg']      = $data->message;
+            $return_msg['session']  = $data->session;
+            $server->push($frame->fd, json_encode($return_msg));
+
+            ###################################################################
+            // salva mensagens
+            if ($data->user == "guest") {
+                // busca room corrente
+                $result  = $room->find();
+                $room_id = $result[0]['id'];
+            } else {
+                // suport manda msg com id da room
+                # TODO: dependencia de interface
+                $room_id = 1;
+            }
+
+            $msg = new Message();
+            $msg->session   = $data->session;
+            $msg->message   = $frame->data;
+            $msg->rooms_id  = $room_id;
+            $msg->save();
+
+
+            // vincula session a room
+            $rooms_session = new RoomsSession();
+            $rooms_session->session = $data->session;
+            $rooms_session->rooms_id  = $room_id;
+
+            if (!count($rooms_session->find())) {
+                $rooms_session->save();
+            }
+
+            // naum enviar a session corrente para todos
+            unset($return_msg['session']);
+
+            // enviar msg para as session da room corrente
+            foreach ($rooms_session->buscaFdCorrente(1) as $result) {
+                if ($frame->fd != $result['fd']) {
+                    $server->push($result['fd'], json_encode($return_msg));
+                }
+            }
+            ###################################################################
         }
     }
     /**
@@ -140,5 +153,24 @@ class WebsocketServer
      */
     private function sendRooms($server, Frame $frame): void
     {
+        // busca sessions de suport
+        $session = new Session();
+        $session->type = 'suport';
+        $sessions = $session->find();
+
+        if (count($sessions)) {
+            $rooms = [];
+            foreach ((new Room())->find() as $room) {
+                unset($room[0], $room[1]);
+                $rooms[] = $room;
+            }
+
+            $return_msg = [];
+            $return_msg['rooms'] = $rooms;
+            
+            foreach ($session->find() as $result) {
+                $server->push($result['fd'], json_encode($return_msg));
+            }
+        }
     }
 }

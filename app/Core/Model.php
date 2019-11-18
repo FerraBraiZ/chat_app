@@ -9,7 +9,7 @@ class Model
     /**
      * @var Db
      */
-    private $db;
+    public $db;
 
     /**
      * @var table
@@ -77,21 +77,30 @@ class Model
         $values = [];
 
         foreach ($this->fillable as $field) {
+            $fields[] = $field;
+
             if (isset($this->{$field})) {
-                $fields[] = $field;
                 $where[] = "$field = ?";
                 $values[] = $this->{$field};
             }
         }
 
+        
         $fields = implode(",", $fields);
-        $where = implode(",", $where);
 
         $tpl = $this->tpl[$action];
         $tpl = str_replace("%table%", $this->table, $tpl);
         $tpl = str_replace("%fields%", $fields, $tpl);
-        $tpl = str_replace("%where%", $where, $tpl);
 
+        if (!count($where)) {
+            $tpl = explode("WHERE", $tpl);
+            $tpl = $tpl[0];
+        } else {
+            $where = implode(" AND ", $where);
+            $tpl = str_replace("%where%", $where, $tpl);
+        }
+        
+        
         
         $sql = $this->db->prepare($tpl);
 

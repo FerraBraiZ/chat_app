@@ -33,39 +33,42 @@ $(document).ready(function() {
 				};
 
 				socket.onmessage = function(msg) {
-					console.log(msg.data);
+					// console.log(msg.data);
 					var data = JSON.parse(msg.data);
 
-					console.log("server:" + data.session);
-					console.log("local:" + localStorage.comp_chat_session);
+					console.log(data);
+					if(typeof data.rooms === 'undefined'){
+						// console.log("server:" + data.session);
+						// console.log("local:" + localStorage.comp_chat_session);
 
-					if (data.session) {
-						if (data.session != localStorage.comp_chat_session) {
-							localStorage.comp_chat_session = data.session;
+						if (data.session) {
+							if (data.session != localStorage.comp_chat_session) {
+								localStorage.comp_chat_session = data.session;
+							}
+						} else {
+							message(
+								'<li class="msg_container msg_guest">' +
+									data.msg +
+									'<img src="images/g.svg" alt="g" class="avatar"></li>'
+							);
 						}
-					} else {
-						message(
-							'<li class="msg_container msg_guest">' +
-								data.msg +
-								'<img src="images/g.svg" alt="g" class="avatar"></li>'
-						);
+					}else{
+						consulta_rooms(data.rooms);
 					}
 				};
 			} catch (exception) {
 				// message("<p>Error" + exception);
 			}
 
-			setInterval(consulta_rooms,1000);
 			
-			function consulta_rooms() {
-
+			function consulta_rooms(rooms) {
+				
 				$(".comp_chat .cli_list li").remove();
 				$(".comp_chat .cli_list").append('<li class="separator"><hr class="separator_hr" /></li>');
-				for (var i = 0; i < 9; i++) {
-					$(".comp_chat .cli_list").append('<li class="msg_container"><img src="images/g.svg" alt="g" class="avatar">Guest1</li>');
-				}
 				
-				console.log("FOI");
+				
+				rooms.forEach((v, i) => $(".comp_chat .cli_list").append('<li class="msg_container"><img src="images/g.svg" alt="g" class="avatar"> Guest '+v.id+'</li>'));
+			
 			}
 
 			function send() {
