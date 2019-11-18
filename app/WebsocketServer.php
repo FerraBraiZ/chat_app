@@ -41,7 +41,7 @@ class WebsocketServer
         $this->ws = new Server("127.0.0.1", 9503);
         
         $this->ws->on('open', function ($ws, Request $request) : void {
-            $this->onOpen($request);
+            $this->onOpen($ws, $request);
         });
         
         $this->ws->on('message', function ($ws, Frame $frame) : void {
@@ -53,11 +53,13 @@ class WebsocketServer
     }
 
     /**
-     * Client connected
-     * @param $server
+     * Cliente conectado
+     *
+     * @param [type] $server
      * @param Request $request
+     * @return void
      */
-    private function onOpen(Request $request): void
+    private function onOpen($server, Request $request): void
     {
         echo "server: handshake success with fd {$request->fd}\n";
     }
@@ -66,84 +68,73 @@ class WebsocketServer
      * @param $server
      * @param $frame
      */
+
+    /**
+     * Gerencia troca de mensagens entre o servidor
+     *
+     * @param [type] $server
+     * @param Frame $frame
+     * @return void
+     */
     private function onMessage($server, Frame $frame): void
     {
-        $data = json_decode($frame->data);
+        $decodedData = json_decode($frame->data);
 
-        if (empty($data->handshake_session)) {
-            $session = new Session();
-            $session->session = $data->session;
+        switch ($decodedData->requestType) {
+            case 'init':
+                // var_dump($decodedData);
+                $this->initSession($decodedData, $server, $frame);
+                break;
             
-            if (empty($data->session) || !count($session->find())) {
-                $data->session = (new Random())->uuid();
-                $session->session = $data->session;
-            }
-            
-            ###################################################################
-            // salva sessao
-            $session->fd = $frame->fd;
-            $session->type = $data->user;
-            $session->save();
-            ###################################################################
-            // verifica se tem room
-            // salva room
-            if ($data->user == "guest") {
-                $room = new Room();
-                $room->create_by = $data->session;
+            case 'message':
+                // var_dump($decodedData);
+                if ($decodedData->user == "guest") {
+                    $room = new Room();
+                    $room->create_by = $decodedData->handshakeSession;
 
-                if (!count($room->find())) {
-                    $room->save();
+                    // busca sala corrente
+                    $result  = $room->find();
+                    $room_id = $result[0]['id'];
+                } else {
+                    // suport manda msg com id da sala
+                    # TODO: dependencia de interface
+                    $room_id = 1;
                 }
-            }
-            ###################################################################
-            // retorna msg para a session corrente
-            $return_msg = [];
-            $return_msg['msg']      = $data->message;
-            $return_msg['session']  = $data->session;
-            $server->push($frame->fd, json_encode($return_msg));
 
-            ###################################################################
-            // salva mensagens
-            if ($data->user == "guest") {
-                // busca room corrente
-                $result  = $room->find();
-                $room_id = $result[0]['id'];
-            } else {
-                // suport manda msg com id da room
-                # TODO: dependencia de interface
-                $room_id = 1;
-            }
+                // salva mensagem
+                $msg = new Message();
+                $msg->session   = $decodedData->handshakeSession;
+                $msg->message   = $frame->data;
+                $msg->rooms_id  = $room_id;
+                $msg->save();
 
-            $msg = new Message();
-            $msg->session   = $data->session;
-            $msg->message   = $frame->data;
-            $msg->rooms_id  = $room_id;
-            $msg->save();
+                // vincula sessao a sala
+                $rooms_session = new RoomsSession();
+                $rooms_session->session = $decodedData->handshakeSession;
+                $rooms_session->rooms_id  = $room_id;
 
-
-            // vincula session a room
-            $rooms_session = new RoomsSession();
-            $rooms_session->session = $data->session;
-            $rooms_session->rooms_id  = $room_id;
-
-            if (!count($rooms_session->find())) {
-                $rooms_session->save();
-            }
-
-            // naum enviar a session corrente para todos
-            unset($return_msg['session']);
-
-            // enviar msg para as session da room corrente
-            foreach ($rooms_session->buscaFdCorrente(1) as $result) {
-                if ($frame->fd != $result['fd']) {
-                    $server->push($result['fd'], json_encode($return_msg));
+                if (!count($rooms_session->find())) {
+                    $rooms_session->save();
                 }
-            }
-            ###################################################################
+
+
+                ###################################################################
+                // enviar msg para as sessoes da sala corrente
+                $return_msg = [];
+                $return_msg['requestType']       = "message";
+                $return_msg['msg']               = $decodedData->message;
+                foreach ($rooms_session->buscaFdCorrente($room_id) as $result) {
+                    if ($frame->fd != $result['fd']) {
+                        $server->push($result['fd'], json_encode($return_msg));
+                    }
+                }
+                break;
         }
     }
+
+
     /**
-     * Atualiza sala para os atendentes
+     * Atualiza salas para os atendentes
      *
      * @return void
      */
@@ -165,12 +156,58 @@ class WebsocketServer
                 $rooms[] = $room;
             }
 
-            $return_msg = [];
-            $return_msg['rooms'] = $rooms;
-            
+            $return_msg                 = [];
+            $return_msg['requestType']  = "rooms";
+            $return_msg['rooms']        = $rooms;
+
             foreach ($session->find() as $result) {
                 $server->push($result['fd'], json_encode($return_msg));
             }
         }
+    }
+
+
+    /**
+     * Gerencia inicializacao da sessao
+     *
+     * @param [type] $data
+     * @param [type] $server
+     * @param Frame $frame
+     * @return void
+     */
+    private function initSession($data, $server, Frame $frame)
+    {
+        $session = new Session();
+        $session->session = $data->handshakeSession;
+                
+        if (empty($session->session) || !count($session->find())) {
+            $session->session = (new Random())->uuid();
+        }
+        
+        // salva sessao
+        $session->fd = $frame->fd;
+        $session->type = $data->user;
+        $session->save();
+
+
+        // verifica se tem room
+        // salva room
+        if ($data->user == "guest") {
+            $room = new Room();
+            $room->create_by = $session->session;
+
+            if (!count($room->find())) {
+                $room->save();
+            }
+        }
+
+
+        // confirma session
+        $return_msg = [];
+        $return_msg['requestType'] = "init";
+        $return_msg['user']  = "suport";
+        $return_msg['handshakeSession']  = $session->session;
+
+        $server->push($frame->fd, json_encode($return_msg));
     }
 }
