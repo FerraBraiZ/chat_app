@@ -10,7 +10,7 @@ $(document).ready(function() {
 			$(".comp_chat .cli_list li").remove();
 			$(".comp_chat .cli_list").append('<li class="separator"><hr class="separator_hr" /></li>');
 			
-			rooms.forEach((v, i) => $(".comp_chat .cli_list").append('<li class="msg_container"><img src="images/g.svg" alt="g" class="avatar"> Guest '+v.id+'</li>'));
+			rooms.forEach((v, i) => $(".comp_chat .cli_list").append('<li class="msg_container" room_id="'+v.id+'"><img src="images/g.svg" alt="g" class="avatar"> Guest '+v.id+'</li>'));
 		}
 
 		ws.callbackMessage 	= function(msg){
@@ -18,7 +18,11 @@ $(document).ready(function() {
 			$(".comp_chat .caixa-msg").scrollTop($(".msg_list").height());
 		}
 
-		ws.callbackHistory 	= function(history){
+		ws.callbackHistory 	= function(history){}
+
+		ws.callbackHistoryView 	= function(history){
+			$(".comp_chat .caixa-msg .msg_list li").remove();
+			$(".comp_chat .caixa-msg .msg_list").append('<li class="separator"><hr class="separator_hr" /></li>');
 			
 			history.forEach(function(element){
 				var decodedData = JSON.parse(element);
@@ -46,7 +50,7 @@ $(document).ready(function() {
 				// message('<p class="warning">Please enter a message');
 				return;
 			}
-			ws.send(msg);
+			ws.send(msg,current_room);
 
 			$("#text").val("");
 		}
@@ -59,14 +63,17 @@ $(document).ready(function() {
 			}
 		});
 
-		$("#disconnect").click(function() {
-			socket.close();
-		});
-	
 		$(".comp_chat .chat-btn").on("click", function() {
 			$(".content_chat", ".comp_chat").slideToggle("fast");
 			$(".glyphicon", this).toggleClass("glyphicon-comment glyphicon-remove");
 		});
+
+		$(".comp_chat").on('click','.msg_container', function() {
+			ws.viewRoom($(this).attr("room_id"));
+			current_room = $(this).attr("room_id");
+		});
+
+		var current_room = 0;
 
 		var obj = document.createElement("audio");
 			obj.src = "/sounds/chime.mp3";

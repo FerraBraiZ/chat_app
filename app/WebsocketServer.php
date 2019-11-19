@@ -83,6 +83,7 @@ class WebsocketServer
             case 'init':
                 // var_dump($decodedData);
                 $this->initSession($decodedData, $server, $frame);
+                $this->sendRooms($server, $frame);
                 break;
             
             case 'message':
@@ -107,8 +108,7 @@ class WebsocketServer
                     $room_id = $result[0]['id'];
                 } else {
                     // suport manda msg com id da sala
-                    # TODO: dependencia de interface
-                    $room_id = 1;
+                    $room_id = $decodedData->current_room;
                 }
 
                 // salva mensagem
@@ -138,6 +138,25 @@ class WebsocketServer
                     if ($frame->fd != $result['fd']) {
                         $server->push($result['fd'], json_encode($return_msg));
                     }
+                }
+                break;
+            case 'viewRoom':
+                // var_dump($decodedData);
+                // envia historico de msg se tiver
+                $return_msg['requestType']      = "historyView";
+                
+                $history_result = (new Message())->buscaHistoricoById($decodedData->room_id);
+                $history = [];
+
+                foreach ($history_result as $key => $msg) {
+                    $history[] = $msg["message"];
+                }
+
+                // var_dump($history);
+
+                if (count($history)) {
+                    $return_msg['history']      = $history;
+                    $server->push($frame->fd, json_encode($return_msg));
                 }
                 break;
         }

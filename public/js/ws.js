@@ -1,12 +1,13 @@
 var ws = {
-	socket			: {},
-	host			: "ws://localhost:9503",
-	user			: "",
-	message 		: "",
-	selfmessage 	: "",
-	callbackRooms	: {},
-	callbackMessage : {},
-	callbackHistory : {},
+	socket				: {},
+	host				: "ws://localhost:9503",
+	user				: "",
+	message 			: "",
+	selfmessage 		: "",
+	callbackRooms		: {},
+	callbackMessage 	: {},
+	callbackHistory 	: {},
+	callbackHistoryView : {},
 
 
 	// inicializa conexao websocket
@@ -53,10 +54,14 @@ var ws = {
 					case "history":
 							self.callbackHistory(decodedData.history);
 							break;
+					
+					// view historico
+					case "historyView":
+							self.callbackHistoryView(decodedData.history);
+							break;
 
 					// gerencia mensagens
 					default:
-						console.log(decodedData.msg);
 						self.callbackMessage(self.message.replace(/%msg%/g, decodedData.msg))
 						break;
 
@@ -67,23 +72,33 @@ var ws = {
 			// message("<p>Error" + exception);
 		}
 	},
-	send: function(msg){
+	send: function(msg,current_room){
 		
 		var newMsg = {
 			requestType: "message",
 			user: this.user,
 			message: msg,
+			current_room: current_room,
 			handshakeSession: "",
 		};
 
 		if (localStorage.comp_chat_session) {
 			newMsg.handshakeSession = localStorage.comp_chat_session;
 		}
-		console.log("#################################");
-		console.log("local>>>" + newMsg.handshakeSession);
-
+		
 		this.socket.send(JSON.stringify(newMsg));
 		this.callbackMessage(this.selfmessage.replace(/%msg%/g, msg));
+	},
+	viewRoom: function(room_id){
+		
+		var newMsg = {
+			requestType: "viewRoom",
+			user: this.user,
+			room_id: room_id,
+			handshakeSession: localStorage.comp_chat_session,
+		};
+
+		this.socket.send(JSON.stringify(newMsg));
 	},
 	// desconecta sessao
 	disconnect:  function(msg){

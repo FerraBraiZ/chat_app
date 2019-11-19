@@ -17,7 +17,12 @@ class Message extends Model
         parent::__construct();
     }
 
-
+    /**
+     * Busca historico por sessao
+     *
+     * @param string $session
+     * @return array
+     */
     public function buscaHistorico(string $session): array
     {
         $select = "
@@ -33,6 +38,32 @@ class Message extends Model
 
         $sql = $this->db->prepare($select);
         $sql->bindParam(1, $session);
+        $sql->execute();
+
+        // $sql->debugDumpParams();
+
+        return $sql->fetchAll();
+    }
+
+    /**
+     * Busca historico por id da room
+     *
+     * @param integer $rooms_id
+     * @return array
+     */
+    public function buscaHistoricoById(int $rooms_id): array
+    {
+        $select = "
+            SELECT 
+                *
+            FROM
+                app.messages
+            WHERE
+                rooms_id = ?
+            ORDER BY id ASC;";
+
+        $sql = $this->db->prepare($select);
+        $sql->bindParam(1, $rooms_id);
         $sql->execute();
 
         // $sql->debugDumpParams();
