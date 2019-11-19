@@ -10,6 +10,25 @@ $(document).ready(function() {
 			$(".comp_chat .caixa-msg").scrollTop($(".msg_list").height());
 		}
 
+		ws.callbackHistory 	= function(history){
+			
+			history.forEach(function(element){
+				var decodedData = JSON.parse(element);
+
+				switch(decodedData.user){
+					
+					case "guest":
+							ws.callbackMessage(ws.selfmessage.replace(/%msg%/g, decodedData.message));
+						break;
+
+					case "suport":
+							ws.callbackMessage(ws.message.replace(/%msg%/g, decodedData.message));
+						break;
+				}
+			});
+		}
+
+
 
 		// conectando com o servidor websocket
 		ws.connect();

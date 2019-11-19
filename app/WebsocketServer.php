@@ -104,6 +104,7 @@ class WebsocketServer
                 // salva mensagem
                 $msg = new Message();
                 $msg->session   = $decodedData->handshakeSession;
+                # TODO: remover requestType e handshakeSession da 'message'
                 $msg->message   = $frame->data;
                 $msg->rooms_id  = $room_id;
                 $msg->save();
@@ -204,10 +205,25 @@ class WebsocketServer
 
         // confirma session
         $return_msg = [];
-        $return_msg['requestType'] = "init";
-        $return_msg['user']  = "suport";
-        $return_msg['handshakeSession']  = $session->session;
+        $return_msg['requestType']      = "init";
+        $return_msg['user']             = $data->user;
+        $return_msg['handshakeSession'] = $session->session;
 
         $server->push($frame->fd, json_encode($return_msg));
+
+        // envia historico de msg se tiver
+        $return_msg['requestType']      = "history";
+        
+        
+        $history_result = (new Message())->buscaHistorico($session->session);
+        $history = [];
+
+        foreach ($history_result as $key => $msg) {
+            $history[] = $msg["message"];
+        }
+        if (count($history)) {
+            $return_msg['history']      = $history;
+            $server->push($frame->fd, json_encode($return_msg));
+        }
     }
 }

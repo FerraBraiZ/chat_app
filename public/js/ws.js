@@ -6,6 +6,7 @@ var ws = {
 	selfmessage 	: "",
 	callbackRooms	: {},
 	callbackMessage : {},
+	callbackHistory : {},
 
 
 	// inicializa conexao websocket
@@ -45,32 +46,26 @@ var ws = {
 					
 					// carrega salas
 					case "rooms":
-						self.rooms(decodedData.rooms);
+						self.callbackRooms(decodedData.rooms);
+							break;
+
+					// carrega historico
+					case "history":
+							self.callbackHistory(decodedData.history);
 							break;
 
 					// gerencia mensagens
 					default:
 						console.log(decodedData.msg);
-						self.message_view(self.message.replace(/%msg%/g, decodedData.msg))
+						self.callbackMessage(self.message.replace(/%msg%/g, decodedData.msg))
 						break;
 
 				}
 			};
-
-
-
-
+			
 		} catch (exception) {
 			// message("<p>Error" + exception);
 		}
-	},
-	// carrega salas
-	rooms: function(rooms) {
-		this.callbackRooms(rooms);
-	},
-	// gerencia msg visual
-	message_view: function(msg) {
-		this.callbackMessage(msg);
 	},
 	send: function(msg){
 		
@@ -88,7 +83,7 @@ var ws = {
 		console.log("local>>>" + newMsg.handshakeSession);
 
 		this.socket.send(JSON.stringify(newMsg));
-		this.message_view(this.selfmessage.replace(/%msg%/g, msg));
+		this.callbackMessage(this.selfmessage.replace(/%msg%/g, msg));
 	},
 	// desconecta sessao
 	disconnect:  function(msg){

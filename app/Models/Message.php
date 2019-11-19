@@ -16,4 +16,27 @@ class Message extends Model
     {
         parent::__construct();
     }
+
+
+    public function buscaHistorico(string $session): array
+    {
+        $select = "
+            SELECT 
+                M.*
+            FROM
+                roomssessions RS
+                    INNER JOIN
+                messages M ON RS.rooms_id = M.rooms_id
+            WHERE
+                RS.session = ?
+            ORDER BY M.id ASC;";
+
+        $sql = $this->db->prepare($select);
+        $sql->bindParam(1, $session);
+        $sql->execute();
+
+        // $sql->debugDumpParams();
+
+        return $sql->fetchAll();
+    }
 }
