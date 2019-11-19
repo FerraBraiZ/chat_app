@@ -5,6 +5,7 @@ $(document).ready(function() {
 		ws.user 		 	= "guest";
 		ws.message		 	= '<li class="msg_container msg_suport">%msg%<img src="images/s.svg" alt="s" class="avatar_suport"></li>';
 		ws.selfmessage		= '<li class="msg_container"><img src="images/g.svg" alt="g" class="avatar">%msg%</li>'
+		
 		ws.callbackMessage 	= function(msg){
 			$(".comp_chat .msg_list").append(msg);
 			$(".comp_chat .caixa-msg").scrollTop($(".msg_list").height());

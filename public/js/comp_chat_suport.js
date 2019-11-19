@@ -5,15 +5,35 @@ $(document).ready(function() {
 		ws.user 		 = "suport";
 		ws.message		 = '<li class="msg_container msg_guest">%msg%<img src="images/g.svg" alt="g" class="avatar"></li>';
 		ws.selfmessage	 = '<li class="msg_container"><img src="images/s.svg" alt="s" class="avatar_suport">%msg%</li>';
+
 		ws.callbackRooms = function (rooms) {
 			$(".comp_chat .cli_list li").remove();
 			$(".comp_chat .cli_list").append('<li class="separator"><hr class="separator_hr" /></li>');
 			
 			rooms.forEach((v, i) => $(".comp_chat .cli_list").append('<li class="msg_container"><img src="images/g.svg" alt="g" class="avatar"> Guest '+v.id+'</li>'));
 		}
+
 		ws.callbackMessage 	= function(msg){
 			$(".comp_chat .msg_list").append(msg);
 			$(".comp_chat .caixa-msg").scrollTop($(".msg_list").height());
+		}
+
+		ws.callbackHistory 	= function(history){
+			
+			history.forEach(function(element){
+				var decodedData = JSON.parse(element);
+
+				switch(decodedData.user){
+					
+					case "guest":
+							ws.callbackMessage(ws.message.replace(/%msg%/g, decodedData.message));
+						break;
+
+					case "suport":
+							ws.callbackMessage(ws.selfmessage.replace(/%msg%/g, decodedData.message));
+						break;
+				}
+			});
 		}
 			
 

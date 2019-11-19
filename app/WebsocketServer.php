@@ -88,6 +88,16 @@ class WebsocketServer
             
             case 'message':
                 // var_dump($decodedData);
+
+                // atualiza fd da sessao
+                $session = new Session();
+                $session->session = $decodedData->handshakeSession;
+                $session->fd = $frame->fd;
+                $session->type = $decodedData->user;
+                $session->save();
+
+
+
                 if ($decodedData->user == "guest") {
                     $room = new Room();
                     $room->create_by = $decodedData->handshakeSession;
@@ -227,3 +237,5 @@ class WebsocketServer
         }
     }
 }
+
+# TODO: avaliar sessoes fechadas de suporte após restart do servidor
