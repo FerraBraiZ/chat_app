@@ -46,7 +46,6 @@ class WebsocketServer
         
         $this->ws->on('message', function ($ws, Frame $frame) : void {
             $this->onMessage($ws, $frame);
-            $this->sendRooms($ws, $frame);
         });
         
         $this->ws->start();
@@ -88,13 +87,14 @@ class WebsocketServer
             
             case 'message':
                 // var_dump($decodedData);
+                $this->sendRooms($server, $frame);
 
                 // atualiza fd da sessao
                 $session = new Session();
                 $session->session = $decodedData->handshakeSession;
                 $session->fd = $frame->fd;
                 $session->type = $decodedData->user;
-                $session->save();
+                $session->update();
 
 
 
@@ -190,17 +190,20 @@ class WebsocketServer
     {
         $session = new Session();
         $session->session = $data->handshakeSession;
-                
+        
         if (empty($session->session) || !count($session->find())) {
             $session->session = (new Random())->uuid();
+            // cria uma nova sessao
+            $session->fd = $frame->fd;
+            $session->type = $data->user;
+            $session->save();
+        } else {
+            // atualiza sessao sessao
+            $session->fd = $frame->fd;
+            $session->type = $data->user;
+            $session->update();
         }
         
-        // salva sessao
-        $session->fd = $frame->fd;
-        $session->type = $data->user;
-        $session->save();
-
-
         // verifica se tem room
         // salva room
         if ($data->user == "guest") {
@@ -238,4 +241,4 @@ class WebsocketServer
     }
 }
 
-# TODO: avaliar sessoes fechadas de suporte após restart do servidor
+# TODO: avaliar sessoes fechadas após restart do servidor
