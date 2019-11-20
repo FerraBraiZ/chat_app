@@ -45,9 +45,12 @@
 	margin-top: 50px;
 	box-sizing: border-box;
 	padding-right: 20px;
-	
-
+	background-image: url(/images/intro-connection.jpg);
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	background-size: 25px;
 }
+
   
 .comp_chat .caixa-cli {
 	background-color: #2f343d;

@@ -11,7 +11,7 @@ $(document).ready(function() {
 				$(".comp_chat .cli_list li").remove();
 				$(".comp_chat .cli_list").append('<li class="separator"><hr class="separator_hr" /></li>');
 				
-				rooms.forEach((v, i) => $(".comp_chat .cli_list").append('<li class="msg_container" room_id="'+v.id+'"><img src="images/g.svg" alt="g" class="avatar"> Guest '+v.id+'</li>'));
+				rooms.forEach((v, i) => $(".comp_chat .cli_list").append('<li class="msg_container" room_id="'+v.id+'" room_name="Guest '+v.id+'"><img src="images/g.svg" alt="g" class="avatar"> Guest '+v.id+'</li>'));
 			},
 
 			callbackMessage 	: function(msg, room_id){
@@ -28,8 +28,7 @@ $(document).ready(function() {
 			},
 			
 			callbackHistoryView 	: function(history){
-				$(".comp_chat .caixa-msg .msg_list li").remove();
-				$(".comp_chat .caixa-msg .msg_list").append('<li class="separator"><hr class="separator_hr" /></li>');
+				
 				
 				history.forEach(function(element){
 					var decodedData = JSON.parse(element);
@@ -52,7 +51,7 @@ $(document).ready(function() {
 		var ws   = new Ws(wsCustom);
 
 		// enviando msg
-		$("#text").keypress(function(event) {
+		$("#text",".comp_chat").keypress(function(event) {
 			if (event.keyCode == "13") {
 				var msg = $(this).val();
 
@@ -70,15 +69,22 @@ $(document).ready(function() {
 			}
 		})
 
-		$(".comp_chat .chat-btn").on("click", function() {
-			$(".content_chat", ".comp_chat").slideToggle("fast");
-			$(".glyphicon", this).toggleClass("glyphicon-comment glyphicon-remove");
-		});
+		$(".comp_chat")
+			.on("click", ".chat-btn", 		function() {
+				$(".content_chat", ".comp_chat").slideToggle("fast");
+				$(".glyphicon", this).toggleClass("glyphicon-comment glyphicon-remove");
+			})
+			.on('click', '.msg_container', function() {
+				$(".comp_chat .caixa-msg .msg_list li").remove();
+				$(".comp_chat .caixa-msg .msg_list").append('<li class="separator"><hr class="separator_hr" /></li>');
+				
+				current_room = $(this).attr("room_id");
+				ws.viewRoom(current_room);
+				$(".header h2",".comp_chat").text($(this).attr("room_name"));
 
-		$(".comp_chat").on('click','.msg_container', function() {
-			ws.viewRoom($(this).attr("room_id"));
-			current_room = $(this).attr("room_id");
-		});
+				$("#text",".comp_chat").removeAttr("disabled");
+				$(".comp_chat .caixa-msg").css('background-image', 'none');
+			});
 
 		var current_room = 0;
 
