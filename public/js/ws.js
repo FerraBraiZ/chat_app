@@ -67,8 +67,11 @@ __class ({'Ws' :
 	// inicializa sessao
 	onOpen: function(e) 
 	{
+		console.log(this.handshakeSession);
+		console.log(localStorage.comp_chat_session);
 		this.setHandshakeSession();
-
+		console.log(this.handshakeSession);
+		console.log(localStorage.comp_chat_session);
 		var newMsg = {
 			requestType: "init",
 			user: this.user,
@@ -87,7 +90,10 @@ __class ({'Ws' :
 			
 			// define sessao
 			case "init":
+				// console.log(decodedData.handshakeSession);
 				this.setHandshakeSession(decodedData.handshakeSession);
+				
+				
 				break;
 			
 			// carrega salas
@@ -163,10 +169,11 @@ __class ({'Ws' :
 	{
 		switch(true){
 			case typeof handshakeSession != "undefined":
-				this.handshakeSession = handshakeSession;
+				this.handshakeSession 			= handshakeSession;
+				localStorage.comp_chat_session 	= handshakeSession;
 				break
-			case localStorage.comp_chat_session:
-				this.handshakeSession = localStorage.comp_chat_session;
+			case typeof localStorage.comp_chat_session != "undefined" :
+				this.handshakeSession 			= localStorage.comp_chat_session;
 				break;
 		}
 	}
