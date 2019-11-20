@@ -32,20 +32,24 @@ __class ({'Ws' :
 	
 	socket 				: {},
 	host				: "ws://localhost:9503",
+	handshakeSession	: "",
 	user				: "",
 	message 			: "",
 	selfmessage 		: "",
-	callbackRooms		: {},
-	callbackMessage 	: {},
-	callbackHistory 	: {},
-	callbackHistoryView : {},
+	callbackRooms		: function (rooms) 	{},
+	callbackMessage 	: function (msg)	{},
+	callbackHistory 	: function (history){},
+	callbackHistoryView : function (history){},
 
 	/**
 	 * Metodo do tipo contrutor.
 	 */
-	construct: function()
+	construct: function(wsCustom)
 	{
 		var self = this;
+		// inicializando variaveis
+		this.setter(wsCustom);
+		
 		// inicializa conexao websocket
 		self.socket = new WebSocket(this.host);
 
@@ -63,16 +67,14 @@ __class ({'Ws' :
 	// inicializa sessao
 	onOpen: function(e) 
 	{
+		this.setHandshakeSession();
+
 		var newMsg = {
 			requestType: "init",
 			user: this.user,
-			handshakeSession: "",
+			handshakeSession: this.handshakeSession,
 		};
 
-		if(localStorage.comp_chat_session){
-			newMsg.handshakeSession = localStorage.comp_chat_session;
-		}
-		
 		this.socket.send( JSON.stringify(newMsg));
 	},
 
@@ -85,7 +87,7 @@ __class ({'Ws' :
 			
 			// define sessao
 			case "init":
-				localStorage.comp_chat_session = decodedData.handshakeSession
+				this.setHandshakeSession(decodedData.handshakeSession);
 				break;
 			
 			// carrega salas
@@ -112,17 +114,15 @@ __class ({'Ws' :
 	// envia msg para o servidor socket
 	send: function(msg, current_room) 
 	{
+		this.setHandshakeSession();
+
 		var newMsg = {
 			requestType: "message",
 			user: this.user,
 			message: msg,
 			current_room: current_room,
-			handshakeSession: "",
+			handshakeSession: this.handshakeSession,
 		};
-
-		if (localStorage.comp_chat_session) {
-			newMsg.handshakeSession = localStorage.comp_chat_session;
-		}
 		
 		this.socket.send(JSON.stringify(newMsg));
 		this.callbackMessage(this.selfmessage.replace(/%msg%/g, msg));
@@ -130,11 +130,13 @@ __class ({'Ws' :
 	// faz a requisicao de listagem das salas
 	viewRoom: function(room_id)
 	{
+		this.setHandshakeSession();
+
 		var newMsg = {
 			requestType: "viewRoom",
 			user: this.user,
 			room_id: room_id,
-			handshakeSession: localStorage.comp_chat_session,
+			handshakeSession: this.handshakeSession,
 		};
 
 		this.socket.send(JSON.stringify(newMsg));
@@ -144,4 +146,28 @@ __class ({'Ws' :
 	{
 		this.socket.close();
 	},
+	/**
+	 * Adiciona novos attributos a um objeto corrente
+	 */
+	setter:function(obj){
+		var self = this;
+		$.each(obj,function(attr,value) {
+			self[attr] = value;
+		})
+	},
+	/**
+	 * 
+	 * @param UUID handshakeSession 
+	 */
+	setHandshakeSession: function (handshakeSession)
+	{
+		switch(true){
+			case typeof handshakeSession != "undefined":
+				this.handshakeSession = handshakeSession;
+				break
+			case localStorage.comp_chat_session:
+				this.handshakeSession = localStorage.comp_chat_session;
+				break;
+		}
+	}
 }});
