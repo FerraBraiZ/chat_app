@@ -53,28 +53,37 @@ Após acessar http://localhost:9001/ e restartar o serviço 'php-server'
 $ tree
 .
 ├── app
-│   ├── Core
-│   │   ├── Db.php
-│   │   └── Model.php
-│   ├── Models
-│   │   ├── Message.php
-│   │   ├── Room.php
-│   │   └── Session.php
-│   └── WebsocketServer.php
+│   ├── Core
+│   │   ├── Db.php
+│   │   └── Model.php
+│   ├── Models
+│   │   ├── Message.php
+│   │   ├── Room.php
+│   │   ├── RoomsSession.php
+│   │   └── Session.php
+│   └── WebsocketServer.php
 ├── composer.json
 ├── der
-│   ├── app.mwb
-│   └── app.mwb.bak
+│   ├── app.mwb
+│   └── der.png
+├── LICENSE
 ├── public
-│   ├── index.php
-│   ├── js
-│   │   ├── comp_chat.js
-│   │   ├── comp_chat_suport.js
-│   └── views
-│       ├── atendente.html
-│       ├── chat.html
-│       ├── home.html
-│       └── suport.html
+│   ├── css
+│   │   ├── comp_chat.css
+│   │   └── comp_chat_suport.css
+│   ├── index.php
+│   ├── js
+│   │   ├── comp_chat.js
+│   │   ├── comp_chat_suport.js
+│   │   └── ws.js
+│   ├── sounds
+│   │   ├── chime.mp3
+│   │   └── door.mp3
+│   └── views
+│       ├── atendente.html
+│       ├── chat.html
+│       ├── home.html
+│       └── suport.html
 ├── README.md
 └── server.php
 
