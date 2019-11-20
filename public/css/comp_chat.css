@@ -57,6 +57,8 @@
 	border-radius: 2px;
 	padding: 15px;
 	color: #2f343d;
+	transition-property: all;
+    transition-duration: 1s;
 }
 
 .comp_chat .floatbtn { 

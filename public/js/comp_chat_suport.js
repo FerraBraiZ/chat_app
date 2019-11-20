@@ -43,25 +43,23 @@ $(document).ready(function() {
 		// inicializa conexao websocket
 		var ws   = new Ws(wsCustom);
 
-		function send() {
-			var msg = $("#text").val();
-
-			if (msg == "") {
-				// message('<p class="warning">Please enter a message');
-				return;
-			}
-			ws.send(msg,current_room);
-
-			$("#text").val("");
-		}
-
-
+		// enviando msg
 		$("#text").keypress(function(event) {
 			if (event.keyCode == "13") {
-				send();
+				var msg = $(this).val();
+
+				if (msg == "") {
+					$(this).addClass("alert alert-danger");
+					return;
+				}
+				ws.send(msg,current_room);
+
+				$(this).val("");
 				obj.play();
+			}else{
+				$(this).removeClass("alert alert-danger");
 			}
-		});
+		})
 
 		$(".comp_chat .chat-btn").on("click", function() {
 			$(".content_chat", ".comp_chat").slideToggle("fast");

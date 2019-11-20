@@ -32,32 +32,31 @@ $(document).ready(function() {
 
 		// inicializa conexao websocket
 		var ws   = new Ws(wsCustom);
-
+		
 		// enviando msg
-		function send() {
-			var msg = $("#text").val();
-
-			if (msg == "") {
-				// message('<p class="warning">Please enter a message');
-				return;
-			}
-			ws.send(msg);
-
-			$("#text").val("");
-		}
-
-
 		$("#text").keypress(function(event) {
 			if (event.keyCode == "13") {
-				send();
-				obj.play();
-			}
-		});
+				var msg = $(this).val();
 
+				if (msg == "") {
+					$(this).addClass("alert alert-danger");
+					return;
+				}
+				ws.send(msg,current_room);
+
+				$(this).val("");
+				obj.play();
+			}else{
+				$(this).removeClass("alert alert-danger");
+			}
+		})
+		
 		$(".comp_chat .chat-btn").on("click", function() {
 			$(".content_chat", ".comp_chat").slideToggle("fast");
 			$(".glyphicon", this).toggleClass("glyphicon-comment glyphicon-remove");
 		});
+
+		var current_room = 0;
 
 		var obj = document.createElement("audio");
 			obj.src = "/sounds/chime.mp3";
