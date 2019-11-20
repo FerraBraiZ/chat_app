@@ -1,5 +1,36 @@
-var ws = {
-	socket				: {},
+var __class  = function(obj){
+	$.each(obj,function(key,value) {
+		window[key] = $.each(function(){
+			
+			var vars    = { args  : arguments};
+			var methods = { __main      :function(){},
+							__construct :function(){
+							var args = "";
+							var args_len = this.args.length;
+							for(x=1;x<=args_len;x++)
+								args += "this.args["+(x-1)+"]"+(x%args_len>0?",":"");
+							eval("this.construct("+args+");");
+							}}; 
+			
+			var all   = $.extend( methods , vars    );
+				all   = $.extend( all   , value   );
+			
+			$.extend( this,all,$.each(function(){ new Object()}));
+			
+			this.__main();
+			
+			if(typeof this.construct == "function"){
+				this.__construct.__proto__ = this.construct.prototype;
+				this.__construct();
+			}
+		});
+	});
+}
+
+__class ({'Ws' :
+{
+	
+	socket 				: {},
 	host				: "ws://localhost:9503",
 	user				: "",
 	message 			: "",
@@ -9,71 +40,78 @@ var ws = {
 	callbackHistory 	: {},
 	callbackHistoryView : {},
 
-
-	// inicializa conexao websocket
-	connect : function(host) {
-		
+	/**
+	 * Metodo do tipo contrutor.
+	 */
+	construct: function()
+	{
 		var self = this;
+		// inicializa conexao websocket
+		self.socket = new WebSocket(this.host);
 
-		try {
-			this.socket = new WebSocket(this.host);
+		// inicializa sessao
+		self.socket.onopen = function(e) {
+			self.onOpen(e);
+		};
+
+		// gerencia comunicacao
+		self.socket.onmessage = function(msg) {
+			self.onMessage(msg);		
+		};  
+
+	},
+	// inicializa sessao
+	onOpen: function(e) 
+	{
+		var newMsg = {
+			requestType: "init",
+			user: this.user,
+			handshakeSession: "",
+		};
+
+		if(localStorage.comp_chat_session){
+			newMsg.handshakeSession = localStorage.comp_chat_session;
+		}
+		
+		this.socket.send( JSON.stringify(newMsg));
+	},
+
+	// gerencia comunicacao
+	onMessage: function(msg)
+	{
+		var decodedData = JSON.parse(msg.data);
+
+		switch(decodedData.requestType){
 			
-			// inicializa sessao
-			this.socket.onopen = function(e) {
-						
-				var newMsg = {
-					requestType: "init",
-					user: self.user,
-					handshakeSession: "",
-				};
-
-				if(localStorage.comp_chat_session){
-					newMsg.handshakeSession = localStorage.comp_chat_session;
-				}
-				
-				self.socket.send( JSON.stringify(newMsg));
-			};
-
-			// gerencia comunicacao
-			this.socket.onmessage = function(msg) {
-						
-				var decodedData = JSON.parse(msg.data);
-
-				switch(decodedData.requestType){
-					// define sessao
-					case "init":
-						localStorage.comp_chat_session = decodedData.handshakeSession
-						break;
-					
-					// carrega salas
-					case "rooms":
-						self.callbackRooms(decodedData.rooms);
-							break;
-
-					// carrega historico
-					case "history":
-							self.callbackHistory(decodedData.history);
-							break;
-					
-					// view historico
-					case "historyView":
-							self.callbackHistoryView(decodedData.history);
-							break;
-
-					// gerencia mensagens
-					default:
-						self.callbackMessage(self.message.replace(/%msg%/g, decodedData.msg))
-						break;
-
-				}
-			};
+			// define sessao
+			case "init":
+				localStorage.comp_chat_session = decodedData.handshakeSession
+				break;
 			
-		} catch (exception) {
-			// message("<p>Error" + exception);
+			// carrega salas
+			case "rooms":
+				this.callbackRooms(decodedData.rooms);
+				break;
+
+			// carrega historico
+			case "history":
+				this.callbackHistory(decodedData.history);
+				break;
+			
+			// view historico
+			case "historyView":
+				this.callbackHistoryView(decodedData.history);
+				break;
+
+			// gerencia mensagens
+			default:
+				this.callbackMessage(this.message.replace(/%msg%/g, decodedData.msg))
+				break;
 		}
 	},
-	send: function(msg,current_room){
-		
+	// envia msg para o servidor socket
+	send: function(msg, current_room) 
+	{
 		var newMsg = {
 			requestType: "message",
 			user: this.user,
@@ -89,8 +127,9 @@ var ws = {
 		this.socket.send(JSON.stringify(newMsg));
 		this.callbackMessage(this.selfmessage.replace(/%msg%/g, msg));
 	},
-	viewRoom: function(room_id){
-		
+	// faz a requisicao de listagem das salas
+	viewRoom: function(room_id)
+	{
 		var newMsg = {
 			requestType: "viewRoom",
 			user: this.user,
@@ -101,8 +140,8 @@ var ws = {
 		this.socket.send(JSON.stringify(newMsg));
 	},
 	// desconecta sessao
-	disconnect:  function(msg){
+	disconnect:  function(msg)
+	{
 		this.socket.close();
 	},
-
-};
+}});

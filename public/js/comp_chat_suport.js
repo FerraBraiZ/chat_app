@@ -2,6 +2,9 @@ $(document).ready(function() {
 	$.getScript('/js/ws.js', function() {
 		$("#text").focus();
 
+		// inicializa conexao websocket
+		var ws   = new Ws();
+		
 		ws.user 		 = "suport";
 		ws.message		 = '<li class="msg_container msg_guest">%msg%<img src="images/g.svg" alt="g" class="avatar"></li>';
 		ws.selfmessage	 = '<li class="msg_container"><img src="images/s.svg" alt="s" class="avatar_suport">%msg%</li>';
@@ -40,8 +43,6 @@ $(document).ready(function() {
 			});
 		}
 			
-
-		ws.connect();
 
 		function send() {
 			var msg = $("#text").val();

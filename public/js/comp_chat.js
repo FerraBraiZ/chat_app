@@ -2,6 +2,9 @@ $(document).ready(function() {
 	$.getScript('/js/ws.js', function() {
 		$("#text").focus();
 		
+		// inicializa conexao websocket
+		var ws   = new Ws();
+
 		ws.user 		 	= "guest";
 		ws.message		 	= '<li class="msg_container msg_suport">%msg%<img src="images/s.svg" alt="s" class="avatar_suport"></li>';
 		ws.selfmessage		= '<li class="msg_container"><img src="images/g.svg" alt="g" class="avatar">%msg%</li>'
@@ -29,10 +32,6 @@ $(document).ready(function() {
 			});
 		}
 
-
-
-		// conectando com o servidor websocket
-		ws.connect();
 
 		// enviando msg
 		function send() {
