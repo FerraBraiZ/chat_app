@@ -14,7 +14,15 @@ $(document).ready(function() {
 				rooms.forEach((v, i) => $(".comp_chat .cli_list").append('<li class="msg_container" room_id="'+v.id+'"><img src="images/g.svg" alt="g" class="avatar"> Guest '+v.id+'</li>'));
 			},
 
-			callbackMessage 	: function(msg){
+			callbackMessage 	: function(msg, room_id){
+				
+				if(current_room == room_id){
+					$(".comp_chat .msg_list").append(msg);
+					$(".comp_chat .caixa-msg").scrollTop($(".msg_list").height());
+				}
+			},
+
+			callbackMessageView 	: function(msg){
 				$(".comp_chat .msg_list").append(msg);
 				$(".comp_chat .caixa-msg").scrollTop($(".msg_list").height());
 			},
@@ -29,11 +37,11 @@ $(document).ready(function() {
 					switch(decodedData.user){
 						
 						case "guest":
-								ws.callbackMessage(ws.message.replace(/%msg%/g, decodedData.message));
+								ws.callbackMessageView(ws.message.replace(/%msg%/g, decodedData.message));
 							break;
 
 						case "suport":
-								ws.callbackMessage(ws.selfmessage.replace(/%msg%/g, decodedData.message));
+								ws.callbackMessageView(ws.selfmessage.replace(/%msg%/g, decodedData.message));
 							break;
 					}
 				});
@@ -52,6 +60,7 @@ $(document).ready(function() {
 					$(this).addClass("alert alert-danger");
 					return;
 				}
+				
 				ws.send(msg,current_room);
 
 				$(this).val("");

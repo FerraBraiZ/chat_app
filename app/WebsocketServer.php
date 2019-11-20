@@ -132,8 +132,10 @@ class WebsocketServer
                 ###################################################################
                 // enviar msg para as sessoes da sala corrente
                 $return_msg = [];
-                $return_msg['requestType']       = "message";
-                $return_msg['msg']               = $decodedData->message;
+                $return_msg['requestType']  = "message";
+                $return_msg['msg']          = $decodedData->message;
+                $return_msg['current_room'] = $room_id;
+                
                 foreach ($rooms_session->buscaFdCorrente($room_id) as $result) {
                     if ($frame->fd != $result['fd']) {
                         $server->push($result['fd'], json_encode($return_msg));

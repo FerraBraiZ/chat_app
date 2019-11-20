@@ -57,7 +57,7 @@ $(document).ready(function() {
 		});
 
 		var current_room = 0;
-
+		
 		var obj = document.createElement("audio");
 			obj.src = "/sounds/chime.mp3";
 			obj.volume = 0.1;

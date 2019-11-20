@@ -36,10 +36,10 @@ __class ({'Ws' :
 	user				: "",
 	message 			: "",
 	selfmessage 		: "",
-	callbackRooms		: function (rooms) 	{},
-	callbackMessage 	: function (msg)	{},
-	callbackHistory 	: function (history){},
-	callbackHistoryView : function (history){},
+	callbackRooms		: function (rooms) 				{},
+	callbackMessage 	: function (msg,current_room)	{},
+	callbackHistory 	: function (history)			{},
+	callbackHistoryView : function (history)			{},
 
 	/**
 	 * Metodo do tipo contrutor.
@@ -107,7 +107,7 @@ __class ({'Ws' :
 
 			// gerencia mensagens
 			default:
-				this.callbackMessage(this.message.replace(/%msg%/g, decodedData.msg))
+				this.callbackMessage(this.message.replace(/%msg%/g, decodedData.msg),decodedData.current_room)
 				break;
 		}
 	},
@@ -115,7 +115,7 @@ __class ({'Ws' :
 	send: function(msg, current_room) 
 	{
 		this.setHandshakeSession();
-
+		
 		var newMsg = {
 			requestType: "message",
 			user: this.user,
@@ -125,7 +125,7 @@ __class ({'Ws' :
 		};
 		
 		this.socket.send(JSON.stringify(newMsg));
-		this.callbackMessage(this.selfmessage.replace(/%msg%/g, msg));
+		this.callbackMessage(this.selfmessage.replace(/%msg%/g, msg),current_room);
 	},
 	// faz a requisicao de listagem das salas
 	viewRoom: function(room_id)
